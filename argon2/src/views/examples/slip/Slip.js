@@ -173,7 +173,7 @@ export default function FullWidthTabs() {
     console.log(currentindex)
     setFormValues([
       ...formValues,
-      {
+      { 
         customerid:"",
         customerbank: "",
         customerbranch: "",
@@ -363,13 +363,14 @@ settotalcoins(amountCoins*1)
       }});
     
    
-    const firmname = firmarray.find((element) => {
+    const firmx = firmarray.find((element) => {
       return element._id === chequeFirmid;
     });
-    
-    const firmm = firmname?.firmname;
+    console.log(firmx.firmname)
+    const firmm = firmx?.firmname;
 
     setchequefirmname(firmm);
+    console.log(chequefirmname)
 
   };
   console.log("ChequeFirmData=>>>", chequeFirmData);
@@ -622,7 +623,7 @@ settotalcoins(amountCoins*1)
     })
     .then(async (res)=>{
       const url = await window.URL.createObjectURL(new Blob([res.data]));
-
+console.log(url)
       const link = document.createElement('a');
 
       link.href = url;
@@ -721,7 +722,7 @@ settotalcoins(amountCoins*1)
 
     console.warn(result);
   };
-
+console.log("me hu firmname ",chequefirmname)
   const formSubmit = async (e) => {
     e.preventDefault();
     console.log(chequeFirmid, chequefirmname, formValues);
@@ -800,6 +801,7 @@ settotalcoins(amountCoins*1)
     loading2,
     loading3,currentindex,
     loading4,
+    formValues
   ]);
   console.log(currentindex)
   const handleChange = (event, newValue) => {

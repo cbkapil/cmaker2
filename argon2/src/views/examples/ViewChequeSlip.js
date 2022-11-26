@@ -31,6 +31,7 @@ import SaveAlt from '@material-ui/icons/SaveAlt';
 import Search from '@material-ui/icons/Search';
 import ViewColumn from '@material-ui/icons/ViewColumn';
 import { forwardRef } from "react";
+import axios from "axios"
 
 
 import { ThemeProvider, createTheme } from '@mui/material'
@@ -90,6 +91,36 @@ const ViewChequeSlip = () => {
       console.log("hahahahahahha", result);
       setdataa(result);
     } else return;
+  };
+
+
+  const sendprintdata = async (dataa) => {
+    console.log("hi from search");
+    await axios({
+      headers : {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token,
+      },
+      url : 'http://localhost:8000/chequeprint',
+      method : 'POST',
+      data:JSON.stringify({dataa}),
+      responseType : 'blob',
+     
+    })
+    .then(async (res)=>{
+      const url = await window.URL.createObjectURL(new Blob([res.data]));
+console.log(url)
+      const link = document.createElement('a');
+
+      link.href = url;
+
+      link.setAttribute('download', 'file.pdf');
+
+      document.body.appendChild(link);
+
+      link.click();
+    }).catch((err)=> console.log(err));
+    
   };
 
   const searchbytext = async () => {
@@ -209,7 +240,7 @@ const ViewChequeSlip = () => {
       actions={[{icon:()=><button>click me</button>,
       tooltip:"Click Me",
       onClick: (e,dataa) => 
-        console.log(dataa),
+        sendprintdata(dataa),
       // isFreeAction:true
 
 

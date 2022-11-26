@@ -44,6 +44,7 @@ import SearchByDateCash from './routes/SearchByDateCash.js'
 import GetPartyBank from './routes/GetPartyBank.js'
 import GetPartyBranch from './routes/GetPartyBranch.js'
 import pdfroute from'./routes/pdf.js';
+import ChequePrint from './routes/ChequePrint.js'
 // User routes path
 app.use(`/login`, UserRoute);
 app.use(`/register`, UserRoute);
@@ -78,6 +79,7 @@ app.use(SearchByDateCash)
 app.use(GetPartyBank)
 app.use(GetPartyBranch)
 app.use(pdfroute );
+app.use(ChequePrint)
 //Database
 mongoose
   .connect(CONNECTION_STRING, {
