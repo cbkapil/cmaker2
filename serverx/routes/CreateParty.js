@@ -10,6 +10,8 @@ router.post("/createparty", auth, async (req, res) => {
     customername,
     email,
     address,
+    bankname,
+    branch,
     city,
     state,
     pincode,
@@ -25,6 +27,8 @@ router.post("/createparty", auth, async (req, res) => {
       const data = new Party({
         partyname: customername,
         email: email,
+        bankname:bankname,
+        branch:branch,
         address: address,
         city: city,
         state: state,

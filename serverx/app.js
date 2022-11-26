@@ -1,14 +1,14 @@
 import express from "express";
 const app = express();
 import mongoose from "mongoose";
-import cors from "cors";
+import corsHeaders from "./middleware/cors.js";
 const CONNECTION_STRING =
   process.env.CONNECTION_STRING ||
   "mongodb+srv://Shanky:1234@expensedetails.ib4xj.mongodb.net/CheckMaker?retryWrites=true&w=majority";
 import bodyParser from "body-parser";
 
-app.use(cors());
-app.options("*", cors());
+app.options('*',corsHeaders);
+app.use(corsHeaders);
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
@@ -41,6 +41,9 @@ import SearchByDate from './routes/SearchByDate.js'
 import SearchByWord from './routes/SerachByWord.js'
 import GetCashSlips from './routes/GetCashSlip.js'
 import SearchByDateCash from './routes/SearchByDateCash.js'
+import GetPartyBank from './routes/GetPartyBank.js'
+import GetPartyBranch from './routes/GetPartyBranch.js'
+import pdfroute from'./routes/pdf.js';
 // User routes path
 app.use(`/login`, UserRoute);
 app.use(`/register`, UserRoute);
@@ -72,7 +75,9 @@ app.use(SearchByDate)
 app.use(SearchByWord)
 app.use(GetCashSlips)
 app.use(SearchByDateCash)
-
+app.use(GetPartyBank)
+app.use(GetPartyBranch)
+app.use(pdfroute );
 //Database
 mongoose
   .connect(CONNECTION_STRING, {

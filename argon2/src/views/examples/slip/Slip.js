@@ -14,6 +14,8 @@ import TextField from "@mui/material/TextField";
 import Autocomplete from "@mui/material/Autocomplete";
 import moment from "moment";
 import { useRef } from "react";
+import CircularProgress from '@mui/material/CircularProgress';
+import axios from "axios"
 
 import {
   Button,
@@ -87,24 +89,24 @@ export default function FullWidthTabs() {
   const [amount10, setAmount10] = useState(0);
   const [amount5, setAmount5] = useState(0);
   const [amountCoins, setAmountCoins] = useState(0);
-
+  var [currentindex, setcurrentindex] = useState(0);
   const [firmdata, setFirmData] = useState([]);
-  const [chequeFirmData, setchequeFirmData] = useState("");
+  const [chequeFirmData, setchequeFirmData] = useState([]);
   const [firmid, setfirmid] = useState("");
   const [chequeFirmid, setchequeFirmid] = useState("");
   const [bankdata, setBankData] = useState([]);
-  const [chequeBankData, setchequeBankData] = useState("");
+  const [chequeBankData, setchequeBankData] = useState([]);
   const [bankid, setbankid] = useState("");
   const [chequeBankid, setChequebankid] = useState("");
   const [searchbranch, setsearchbranch] = useState([]);
   const [userid, setuserid] = useState("");
   const [branchdata, setbranchdata] = useState([]);
-  const [chequeBranchData, setchequeBranchData] = useState("");
+  const [chequeBranchData, setchequeBranchData] = useState([]);
   const [branchid, setbranchid] = useState([]);
   const [chequeBranchid, setchequeBranchid] = useState("");
   const [accountfin, setaccountfin] = useState("");
   const [accountfin2, setaccountfin2] = useState("");
-  const[chequefirmname,setchequefirmname]=useState("")
+  const [chequefirmname, setchequefirmname] = useState("");
   const [totalamount, settotalamount] = useState("");
   const [firmnamee, setfirmnamee] = useState("");
   const [total, setTotal] = useState(0);
@@ -116,13 +118,31 @@ export default function FullWidthTabs() {
   const [total20, settotal20] = useState(0);
   const [total10, settotal10] = useState(0);
   const [total5, settotal5] = useState(0);
-  const [partydata, setpartydata] = useState("");
+  const [partydata, setpartydata] = useState([]);
+  const[totalcoins,settotalcoins]=useState(0)
 
   const [party2name, setparty2name] = useState("");
   const [chequeno, setchequeno] = useState("");
   const [amount, setamount] = useState("");
+  const [customerid, setcustomerid] = useState("");
+  const [customername, setcustomername] = useState("");
+  const [partybankname, setpartybankname] = useState("");
+  const [customerbranchdata, setcustomerbranchdata] = useState([]);
+  const [customerbankdata, setcustomerbankdata] = useState([]);
+  const [open, setOpen] = React.useState(false);
+  const [open2, setOpen2] = React.useState(false);
+  const [open3, setOpen3] = React.useState(false);
+  const [options, setOptions] = React.useState([]);
+  const loading2 = open && chequeFirmData.length === 0;
+  const loading3=open2 && chequeBankData.length===0;
+  const loading4=open3 && chequeBranchData.length===0;
+ 
+
   const [formValues, setFormValues] = useState([
-    {
+    { 
+      customerid:"",
+      customerbank: "",
+      customerbranch: "",
       bankname: "",
       branch: "",
       accountno: "",
@@ -138,6 +158,8 @@ export default function FullWidthTabs() {
   const ref0 = useRef();
   const ref1 = useRef();
   const ref2 = useRef();
+  const ref3 = useRef();
+  const ref4 = useRef();
 
   let handleChangee = (i, e) => {
     console.log("valuehhhh", e);
@@ -147,9 +169,14 @@ export default function FullWidthTabs() {
   };
   console.log(formValues);
   let addFormFields = () => {
+    setcurrentindex(currentindex+1)
+    console.log(currentindex)
     setFormValues([
       ...formValues,
       {
+        customerid:"",
+        customerbank: "",
+        customerbranch: "",
         bankname: "",
         branch: "",
         accountno: "",
@@ -188,7 +215,8 @@ export default function FullWidthTabs() {
     settotal50(amount50 * 50);
     settotal20(amount20 * 20);
     settotal10(amount10 * 10);
-    settotal5(amount5);
+    settotal5(amount5*5);
+settotalcoins(amountCoins*1)
   }
 
   console.log(total2k);
@@ -207,12 +235,76 @@ export default function FullWidthTabs() {
       },
     });
     result = await result.json();
+    var partyarray2 = [];
     var partyarray = [];
     result &&
       result.partyDatas.partyLink.forEach((element) => {
         partyarray.push(element.partyname);
       });
     setpartydata(partyarray);
+    result &&
+      result.partyDatas.partyLink.forEach((element) => {
+        partyarray2.push({ partyname: element.partyname, _id: element._id });
+      });
+    const temp = partyarray2.find((item) => {
+      return item.partyname === customername;
+    });
+    console.log(temp);
+    const temp2 = temp?._id;
+    setcustomerid(temp2);
+    console.log(customerid);
+  };
+
+  const getPartyBank = async () => {
+    if (!customerid) return;
+    else {
+      console.log(customerid);
+      let result = await fetch("http://localhost:8000/getpartybank", {
+        method: "post",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token,
+        },
+        body: JSON.stringify({ customerid }),
+      });
+      result = await result.json();
+      console.log(result[0].bankname);
+      var temparray = [];
+      console.log(result);
+
+      const tempresult = result.forEach((item) => {
+        temparray.push(item.bankname);
+        return;
+      });
+      setcustomerbankdata(temparray);
+      console.log(temparray);
+    }
+  };
+
+  const getPartyBranch = async () => {
+    if (!customerid && !partybankname) return;
+    else {
+      console.log(customerid);
+      let result = await fetch("http://localhost:8000/getpartybank", {
+        method: "post",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token,
+        },
+        body: JSON.stringify({ customerid, partybankname }),
+      });
+      result = await result.json();
+      console.log(result[0].branch);
+      var temparray = [];
+      console.log(result);
+
+      const tempresult = result.forEach((item) => {
+        temparray.push(item.branch);
+        return;
+      });
+      setcustomerbranchdata(temparray);
+      console.log(temparray);
+    }
   };
 
   // ****************Get Firm Cash Slip ************************
@@ -248,33 +340,41 @@ export default function FullWidthTabs() {
 
   // ****************Get Firm Cheque Slip ************************
   const getFirmChequeSlip = async () => {
-    let result = await fetch("http://localhost:8000/getuser", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + token,
-      },
-    });
-    result = await result.json();
-    console.log("getFirmChequeSlip=>>>", result);
-    var firmarray = [];
-    result.firmDatas.firmid.forEach((element) => {
-      firmarray.push({ _id: element._id, firmname: element.firmname });
-      console.log(firmarray);
-      setchequeFirmData(firmarray);
-    });
+    
+
+   
+  
+      let result = await fetch("http://localhost:8000/getuser", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token,
+        },
+      });
+      result = await result.json();
+      console.log("getFirmChequeSlip=>>>", result);
+      var firmarray = [];
+      result.firmDatas.firmid.forEach((element) => {
+         if (!(element.firmnname in firmarray)){
+        firmarray.push({ _id: element._id, firmname: element.firmname });
+        console.log(firmarray);
+        
+        setchequeFirmData(firmarray);
+      }});
+    
+   
     const firmname = firmarray.find((element) => {
       return element._id === chequeFirmid;
     });
     
     const firmm = firmname?.firmname;
-    
+
     setchequefirmname(firmm);
-    
+
   };
   console.log("ChequeFirmData=>>>", chequeFirmData);
   console.log("ChequeFirmid=>>>", chequeFirmid);
- console.log("ChequeFirmName=>>>", chequefirmname);
+  console.log("ChequeFirmName=>>>", chequefirmname);
   // ****************Get Firm Cheque Slip ************************
 
   // ****************Get Bank Cash Slip ************************
@@ -307,23 +407,30 @@ export default function FullWidthTabs() {
   const getchequeBank = async (firmarray) => {
     if (!chequeFirmid) return;
     else {
-      let result = await fetch("http://localhost:8000/getbank2", {
-        method: "post",
-        body: JSON.stringify({ chequeFirmid }),
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + token,
-        },
-      });
-      result = await result.json();
-      console.log("getchequeBank", result);
-      var bankarray = [];
-      var bankarray2 = [];
-      result.GetBankFunctionCall.bankLink.forEach((element) => {
-        bankarray.push(element.bank);
-        bankarray2 = removeDuplicates(bankarray);
-        return setchequeBankData(bankarray2);
-      });
+
+
+      
+        let result = await fetch("http://localhost:8000/getbank2", {
+          method: "post",
+          body: JSON.stringify({ chequeFirmid }),
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + token,
+          },
+        });
+        result = await result.json();
+        console.log("getchequeBank", result);
+        var bankarray = [];
+        var bankarray2 = [];
+        result.GetBankFunctionCall.bankLink.forEach((element) => {
+          bankarray.push(element.bank);
+          bankarray2 = removeDuplicates(bankarray);
+          return setchequeBankData(bankarray2);
+        });
+        
+      
+     
+
     }
   };
   console.log("ChequeBankdata=>>>", chequeBankData);
@@ -374,24 +481,30 @@ export default function FullWidthTabs() {
     console.log("chequeFirmid && chequeBankid", chequeFirmid, chequeBankid);
     console.log("hello");
     if (chequeFirmid && chequeBankid) {
-      let result = await fetch("http://localhost:8000/getbranches", {
-        method: "post",
-        body: JSON.stringify({ chequeFirmid, chequeBankid }),
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + token,
-        },
-      });
-      result = await result.json();
 
-      console.log("GetChequeBranch=>>>", result);
-      var brancharray = [];
-      result.forEach((element) => {
-        // console.log(element);
-        brancharray.push(element.branch);
-        console.log("chequeBranchData", chequeBranchData);
-        return setchequeBranchData(brancharray);
-      });
+     
+      
+        let result = await fetch("http://localhost:8000/getbranches", {
+          method: "post",
+          body: JSON.stringify({ chequeFirmid, chequeBankid }),
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + token,
+          },
+        });
+        result = await result.json();
+  
+        console.log("GetChequeBranch=>>>", result);
+        var brancharray = [];
+        result.forEach((element) => {
+          // console.log(element);
+          brancharray.push(element.branch);
+          console.log("chequeBranchData", chequeBranchData);
+          return setchequeBranchData(brancharray);
+        });
+        
+      
+
     } else return;
   };
   // ****************Get Cheque Slip Branch ************************
@@ -405,6 +518,7 @@ export default function FullWidthTabs() {
     );
 
     if (chequeFirmid && chequeBankid && chequeBranchid) {
+      
       console.log("me hu console.log");
       let result = await fetch("http://localhost:8000/getaccount", {
         method: "post",
@@ -416,7 +530,7 @@ export default function FullWidthTabs() {
       });
       result = await result.json();
 
-      console.log("GetChequeAccount=>>>", result[0].account);
+      console.log("GetChequeAccount=>>>", result[0]?.account);
       if (!value) {
         formValues.map((element, index) => {
           let newFormValues = [...formValues];
@@ -425,7 +539,19 @@ export default function FullWidthTabs() {
       } else {
         formValues.map((element, index) => {
           let newFormValues = [...formValues];
-          newFormValues[index].accountno = result[0].account;
+          console.log(currentindex)
+          if( newFormValues[currentindex].bankname===""&& 
+            newFormValues[currentindex].branch===""){
+
+              newFormValues[currentindex].accountno =0
+              newFormValues[currentindex].customerid=customerid
+              
+            }else{
+
+              newFormValues[currentindex].accountno = result[0].account;
+              newFormValues[currentindex].customerid=customerid
+            }
+         
         });
       }
     } else return;
@@ -480,6 +606,35 @@ export default function FullWidthTabs() {
     });
   };
 
+  const downloadpdffile =async (resultid)=>{
+    console.log("firsttttttttttttttttttttttttttttttt");
+    console.log("function k andar se ",resultid)
+    await axios({
+      headers : {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token,
+      },
+      url : 'http://localhost:8000/getcashslips',
+      method : 'POST',
+      data:JSON.stringify({resultid}),
+      responseType : 'blob',
+     
+    })
+    .then(async (res)=>{
+      const url = await window.URL.createObjectURL(new Blob([res.data]));
+
+      const link = document.createElement('a');
+
+      link.href = url;
+
+      link.setAttribute('download', 'file.pdf');
+
+      document.body.appendChild(link);
+
+      link.click();
+    }).catch((err)=> console.log(err));
+  }
+
   const firmSubmit = async (e) => {
     e.preventDefault();
     console.log(
@@ -500,6 +655,7 @@ export default function FullWidthTabs() {
       total20,
       total10,
       total5,
+      totalcoins,
       firmid,
       bankid,
       userid,
@@ -552,9 +708,13 @@ export default function FullWidthTabs() {
 
     if (result.status) {
       success();
-      setTimeout(() => {
-        history.push("/admin/sbicashslip");
-      }, 2000);
+      
+      const resultid=result.data._id
+      console.log("me hu result id ",resultid)
+      // setTimeout(() => {
+      //   history.push("/admin/sbicashslip");
+      // }, 2000);
+      downloadpdffile(resultid);
     } else {
       failure();
     }
@@ -564,18 +724,14 @@ export default function FullWidthTabs() {
 
   const formSubmit = async (e) => {
     e.preventDefault();
-    console.log(
-     chequeFirmid,
-     chequefirmname,
-     formValues
-    );
+    console.log(chequeFirmid, chequefirmname, formValues);
     let result = await fetch("http://localhost:8000/createchequeslip", {
       method: "post",
       body: JSON.stringify({
+        customerid,
         chequeFirmid,
         chequefirmname,
-        formValues
-
+        formValues,
       }),
       headers: {
         "Content-Type": "application/json",
@@ -626,6 +782,8 @@ export default function FullWidthTabs() {
     getChequeAccount();
     getCashAccount();
     getParty();
+    getPartyBank();
+    getPartyBranch();
   }, [
     firmid,
     firmnamee,
@@ -636,8 +794,14 @@ export default function FullWidthTabs() {
     chequeFirmid,
     chequeBankid,
     chequeBranchid,
-    chequefirmname
+    chequefirmname,
+    customername,
+    customerid,
+    loading2,
+    loading3,currentindex,
+    loading4,
   ]);
+  console.log(currentindex)
   const handleChange = (event, newValue) => {
     console.log(newValue);
     setValue(newValue);
@@ -725,7 +889,9 @@ export default function FullWidthTabs() {
                           id="combo-box-demo"
                           options={!firmdata ? <div>loading...</div> : firmdata}
                           sx={{ width: 300 }}
-                          renderInput={(params) => <TextField {...params}  variant="outlined"/>}
+                          renderInput={(params) => (
+                            <TextField {...params} variant="outlined" />
+                          )}
                           getOptionLabel={(option) => option?.firmname}
                           onChange={(e, value) => {
                             setfirmid(value._id);
@@ -742,9 +908,11 @@ export default function FullWidthTabs() {
                           disablePortal
                           id="combo-box-demo"
                           options={!bankdata ? <div>loading...</div> : bankdata}
-                          getOptionLabel={(option) => option ?option :""}
+                          getOptionLabel={(option) => (option ? option : "")}
                           sx={{ width: 300 }}
-                          renderInput={(params) => <TextField {...params}  variant="outlined" />}
+                          renderInput={(params) => (
+                            <TextField {...params} variant="outlined" />
+                          )}
                           onChange={(e, value) => {
                             setbankid(value);
                           }}
@@ -766,7 +934,9 @@ export default function FullWidthTabs() {
                               : branchdata
                           }
                           sx={{ width: 300 }}
-                          renderInput={(params) => <TextField {...params}  variant="outlined"/>}
+                          renderInput={(params) => (
+                            <TextField {...params} variant="outlined" />
+                          )}
                           getOptionLabel={(option) => (option ? option : "")}
                           onChange={(e, value) => {
                             setbranchid(value);
@@ -1078,10 +1248,28 @@ export default function FullWidthTabs() {
                     <Autocomplete
                       disablePortal
                       id="combo-box-demo"
-                      options={!chequeFirmData ? <div>loading...</div> : chequeFirmData}
+                    
+                      options={
+                        !chequeFirmData ? <div>loading...</div> : chequeFirmData
+                      }
+                     
                       sx={{ width: 300 }}
-                      renderInput={(params) => <TextField {...params} />}
-                      getOptionLabel={(option) => option?.firmname?option.firmname:""}
+                      renderInput={(params) =>  <TextField
+                        {...params}
+                      
+                        InputProps={{
+                          ...params.InputProps,
+                          endAdornment: (
+                            <React.Fragment>
+                              {!chequeFirmData ? <CircularProgress color="inherit" size={20} /> : null}
+                              {params.InputProps.endAdornment}
+                            </React.Fragment>
+                          ),
+                        }}
+                      />}
+                      getOptionLabel={(option) =>
+                        option?.firmname ? option.firmname : ""
+                      }
                       onChange={(e, value) => {
                         setchequeFirmid(value._id);
                       }}
@@ -1100,18 +1288,39 @@ export default function FullWidthTabs() {
                           </label>
                           <Autocomplete
                             name="bankname"
+                            loading={loading3}
                             disablePortal
                             id="bankname"
-                            options={!chequeBankData ? <div>loading...</div> : chequeBankData}
-
+                            options={
+                              !chequeBankData ? (
+                                <div>loading...</div>
+                              ) : (
+                                chequeBankData
+                              )
+                            }
+                           
                             sx={{ width: 300 }}
-                            renderInput={(params) => <TextField {...params}   variant="outlined"/>}
+                            renderInput={(params) => (
+                              <TextField
+                              {...params}
+                          
+                              InputProps={{
+                                ...params.InputProps,
+                                endAdornment: (
+                                  <React.Fragment>
+                                    {loading3 ? <CircularProgress color="inherit" size={20} /> : null}
+                                    {params.InputProps.endAdornment}
+                                  </React.Fragment>
+                                ),
+                              }}
+                            />
+                            )}
                             ref={ref0}
                             onInputChange={(e, v, r) => {
                               if (r === "reset") console.log(v, r);
                             }}
                             value={element.bankname || ""}
-                            getOptionLabel={(option) => option }
+                            getOptionLabel={(option) => option}
                             onChange={(e, v, r) => {
                               setChequebankid(v);
                               console.log(ref0.current.getAttribute("name"));
@@ -1130,6 +1339,14 @@ export default function FullWidthTabs() {
                             BRANCH NAME
                           </label>
                           <Autocomplete
+                           open={open3}
+                           onOpen={() => {
+                             setOpen3(true);
+                           }}
+                           onClose={() => {
+                             setOpen3(false);
+                           }}
+                           loading={loading4}
                             name="branch"
                             disablePortal
                             id="bankname"
@@ -1141,7 +1358,21 @@ export default function FullWidthTabs() {
                               )
                             }
                             sx={{ width: 300 }}
-                            renderInput={(params) => <TextField {...params}  variant="outlined" />}
+                            renderInput={(params) => (
+                              <TextField
+                              {...params}
+                              
+                              InputProps={{
+                                ...params.InputProps,
+                                endAdornment: (
+                                  <React.Fragment>
+                                    {loading4 ? <CircularProgress color="inherit" size={20} /> : null}
+                                    {params.InputProps.endAdornment}
+                                  </React.Fragment>
+                                ),
+                              }}
+                            />
+                            )}
                             ref={ref1}
                             onInputChange={(e, v, r) => {
                               if (r === "reset") console.log(v, r);
@@ -1151,6 +1382,7 @@ export default function FullWidthTabs() {
                             onChange={(e, v, r) => {
                               console.log("BranchID=>>>", v);
                               setchequeBranchid(v);
+                              setcurrentindex(index);
                               console.log(ref1.current.getAttribute("name"));
                               let newFormValues = [...formValues];
                               newFormValues[index][
@@ -1223,12 +1455,16 @@ export default function FullWidthTabs() {
                             id="combo-box-demo"
                             options={partydata}
                             sx={{ width: 300 }}
-                            renderInput={(params) => <TextField {...params}  variant="outlined"/>}
-                            getOptionLabel={(option) => option? option : ""}
+                            renderInput={(params) => (
+                              <TextField {...params} variant="outlined" />
+                            )}
+                            isOptionEqualToValue={(option, value) => option ===value}
+                            getOptionLabel={(option) => (option ? option : "")}
                             value={element.customer || ""}
                             ref={ref2}
                             onInputChange={(e, v, r) => {
                               console.log(e);
+                              setcustomername(v);
 
                               if (r === "reset") console.log(v, r);
                             }}
@@ -1237,6 +1473,73 @@ export default function FullWidthTabs() {
                               let newFormValues = [...formValues];
                               newFormValues[index][
                                 ref2.current.getAttribute("name")
+                              ] = v;
+                              setFormValues(newFormValues);
+                            }}
+                          />
+
+                          <label
+                            className="form-control-label"
+                            htmlFor="input-email"
+                          >
+                            Customer Bank
+                          </label>
+                          <Autocomplete
+                            disablePortal
+                            name="customerbank"
+                            id="combo-box-demo"
+                            options={customerbankdata}
+                            sx={{ width: 300 }}
+                            renderInput={(params) => (
+                              <TextField {...params} variant="outlined" />
+                            )}
+                            getOptionLabel={(option) => (option ? option : "")}
+                            value={element.customerbank || ""}
+                            ref={ref3}
+                            onInputChange={(e, v, r) => {
+                              console.log(e);
+                              setpartybankname(v);
+
+                              if (r === "reset") console.log(v, r);
+                            }}
+                            onChange={(e, v, r) => {
+                              console.log(ref3.current.getAttribute("name"));
+                              let newFormValues = [...formValues];
+                              newFormValues[index][
+                                ref3.current.getAttribute("name")
+                              ] = v;
+                              setFormValues(newFormValues);
+                            }}
+                          />
+
+                          <label
+                            className="form-control-label"
+                            htmlFor="input-email"
+                          >
+                            Customer Branch
+                          </label>
+                          <Autocomplete
+                            disablePortal
+                            name="customerbranch"
+                            id="combo-box-demo"
+                            options={customerbranchdata}
+                            sx={{ width: 300 }}
+                            renderInput={(params) => (
+                              <TextField {...params} variant="outlined" />
+                            )}
+                            getOptionLabel={(option) => (option ? option : "")}
+                            value={element.customerbranch || ""}
+                            ref={ref4}
+                            onInputChange={(e, v, r) => {
+                              console.log(e);
+
+                              if (r === "reset") console.log(v, r);
+                            }}
+                            onChange={(e, v, r) => {
+                              console.log(ref4.current.getAttribute("name"));
+                              let newFormValues = [...formValues];
+                              newFormValues[index][
+                                ref4.current.getAttribute("name")
                               ] = v;
                               setFormValues(newFormValues);
                             }}
@@ -1284,27 +1587,28 @@ export default function FullWidthTabs() {
                             />
                           </FormGroup>
                         </Col>
+
                         {index ? (
                           <button
                             type="button"
-                            className="button remove"
+                            className="btn btn-danger"
                             onClick={() => removeFormFields(index)}
                           >
-                            Remove
+                              <i className="fa fa-minus" aria-hidden="true" />
                           </button>
                         ) : null}
                       </Row>
                       <div className="button-section">
                         <button
-                          className="button add"
+                          
                           type="button"
                           onClick={() => addFormFields()}
+                          className="btn btn-primary text-center"
                         >
-                          Add
+                           <i className="fa fa-plus-circle" aria-hidden="true" />
+                          
                         </button>
-                        <button className="button submit" type="submit">
-                          Submit
-                        </button>
+                       
                       </div>
                     </Form>
                   ))}

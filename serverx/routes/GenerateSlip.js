@@ -64,6 +64,7 @@ router.post("/generateslip", auth, async (req, res) => {
       coins: req.body.amountCoins,
       totalamount: req.body.total,
     });
+    console.log("dgfdgfdfhdhf",data.coins);
     const dataRegister = await data.save();
     console.log("lol", dataRegister);
     let slipid = dataRegister._id;
@@ -81,7 +82,7 @@ router.post("/generateslip", auth, async (req, res) => {
       }
     );
 
-    res.status(201).json({ message: "Firm Data added", status: true });
+    res.status(201).json({ message: "Firm Data added", status: true,data:data });
   } catch (err) {
     console.log(err);
   }

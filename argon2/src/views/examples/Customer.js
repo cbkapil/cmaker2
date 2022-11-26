@@ -19,6 +19,8 @@ import {
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import SyncLoader from "react-spinners/SyncLoader";
+import TextField from "@mui/material/TextField";
+import Autocomplete from "@mui/material/Autocomplete";
 
 const Customer = () => {
   const [loading, setloading] = useState(false);
@@ -31,7 +33,9 @@ const Customer = () => {
   const [pincode, setpincode] = useState("");
   const [phonenumber, setphonenumber] = useState("");
   const [phonenumber2, setphonenumber2] = useState("");
-
+const [bankdata,setBankData]=useState('');
+const[bankname,setbankname]=useState("")
+const[branch,setbranch]=useState('')
   const token = localStorage.getItem("token");
   console.log(token);
   const failure=()=>{toast.error('🦄 Something Wrong !!!', {
@@ -54,6 +58,37 @@ const Customer = () => {
     progress: undefined,
     theme: "light",
     });};
+
+
+
+   
+    const getData = async () => {
+      let result = await fetch("http://localhost:8000/getbank", {
+        method: "GET",
+  
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token,
+        },
+      });
+      result = await result.json();
+      console.log(result);
+      var bankarray = [];
+      var bank = result.forEach((item) => {
+        bankarray.push(item.banknamelist);
+      });
+      console.log(bankarray);
+      setBankData(bankarray);
+      console.log(bankdata);
+    };
+
+
+    useEffect(() => {
+      getData()
+    
+    
+    }, [])
+    
 
   const firmSubmit = async (e) => {
     e.preventDefault();
@@ -97,6 +132,8 @@ const Customer = () => {
       body: JSON.stringify({
         customername,
         email,
+        bankname,
+        branch,
         address,
         city,
         state,
@@ -134,7 +171,7 @@ const Customer = () => {
     setloading(true);
     setTimeout(()=>{
       setloading(false)
-    },3000)
+    },1000)
   
   
   }, [])
@@ -149,7 +186,7 @@ const Customer = () => {
           <SyncLoader
          color={color}
          loading={loading}
-         size={80}
+         size={40}
          aria-label="Loading Spinner"
          data-testid="loader"
        />
@@ -193,6 +230,62 @@ const Customer = () => {
                   value={email}
                   onChange={(e) => {
                     setemail(e.target.value);
+                  }}
+                />
+              </FormGroup>
+            </Col>
+          </Row>
+        </div>
+        <hr className="my-1" />
+        {/* Address */}
+        <h6 className="heading-small text-muted mb-1">Bank information</h6>
+        <div className="pl-lg-4">
+          <Row>
+            <Col lg="6">
+              <FormGroup>
+                <label className="form-control-label" htmlFor="input-username">
+                  Select Bank
+                </label>
+                <Autocomplete
+                            disablePortal
+                            name="customer"
+                            id="combo-box-demo"
+                            options={bankdata}
+                            sx={{ width: 300 }}
+                            renderInput={(params) => <TextField {...params}  variant="outlined"/>}
+                            getOptionLabel={(option) => option? option : ""}
+                            value={bankname}
+                           
+                            onInputChange={(e, v, r) => {
+                              console.log(e);
+                              setbankname(v)
+
+                              if (r === "reset") console.log(v, r);
+                            }}
+                            // onChange={(e, v, r) => {
+                            //   console.log(ref2.current.getAttribute("name"));
+                            //   let newFormValues = [...formValues];
+                            //   newFormValues[index][
+                            //     ref2.current.getAttribute("name")
+                            //   ] = v;
+                            //   setFormValues(newFormValues);
+                            // }}
+                          />
+              </FormGroup>
+            </Col>
+            <Col lg="6">
+              <FormGroup>
+                <label className="form-control-label" htmlFor="input-email">
+                  Enter Branch
+                </label>
+                <Input
+                  className="form-control-alternative"
+                  id="input-email"
+                  placeholder="Enter Branch"
+                  type="email"
+                  value={branch}
+                  onChange={(e) => {
+                    setbranch(e.target.value);
                   }}
                 />
               </FormGroup>

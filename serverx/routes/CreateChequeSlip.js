@@ -9,7 +9,8 @@ router.post("/createchequeslip", auth, async (req, res) => {
   const {
    chequeFirmid,
    chequefirmname,
-   formValues
+   formValues,
+   
   } = req?.body;
   
 
@@ -22,11 +23,14 @@ router.post("/createchequeslip", auth, async (req, res) => {
           branch: user.branch,
           accountno:user.accountno ,
           partyname:user.customer,
+          partybankname:user.customerbank,
+          partybranchname:user.customerbranch,
           chequeno:user.chequeno,
           amount:user.amount,
           chequedate:user.chequedate,
           firmid:chequeFirmid,
           userid:req.userId,
+          partyid:user.customerid
         });
         
         dataa.save((error, result) => {

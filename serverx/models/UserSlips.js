@@ -18,7 +18,7 @@ const bankDataSchema = new mongoose.Schema(
     twenty: [{ quantity: Number, amount: Number }],
     ten: [{ quantity: Number, amount: Number }],
     five: [{ quantity: Number, amount: Number }],
-   coins:{amount:Number},
+    coins:{type:Number},
     totalamount: { type: Number }
   },
   {

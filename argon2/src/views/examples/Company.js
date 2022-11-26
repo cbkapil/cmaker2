@@ -728,19 +728,13 @@ const Company = () => {
                               />
                             </FormGroup>
 
-                            <Button
-                              onClick={(e) => {
-                                setnext(true);
-                              }}
-                            >
-                              Next
-                            </Button>
+                            
+
                           </Col>
+                          
                         </Row>
                       </div>
-                    </div>
-                  ) : checked === true && next === true ? (
-                    <form onSubmit={handleSubmit}>
+                      <form onSubmit={handleSubmit}>
                       {formValues.map((element, index) => (
                         <div>
                           <h6 className="heading-small text-muted mb-1 mt-2">
@@ -898,7 +892,8 @@ const Company = () => {
                         <Button onClick={firmSubmit}>Submit</Button>
                       </div>
                     </form>
-                  ) : null}
+                    </div>
+                  ):(null)}
                 </CardBody>
               </Card>
             </div>

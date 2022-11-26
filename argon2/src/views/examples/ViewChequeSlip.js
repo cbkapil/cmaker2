@@ -129,12 +129,15 @@ const ViewChequeSlip = () => {
   };
 
   const columns=[{title:"Firm Name",field:"firmname"},
-  {title:"Party Name",field:"partyname"},
+  {title:"Bank Name",field:"bank"},
   {title:"Account No",field:"accountno"},
   {title:"Cheque No",field:"chequeno"},
   {title:"Amount",field:"amount"},
   {title:"Status",field:"status", render:(rowData)=><div >{rowData.status==='true'?( <Button variant="outline-danger"  disabled>Printed</Button>):(<Button variant="outline-success" disabled>Not Printed</Button>)}</div>},
-  {title:"Cheque Date",field:"chequedate",render:(rowData)=><div>{rowData.chequedate}</div>},
+  {title:"Cheque Date",field:"chequedate",render:(rowData)=><div>{new Date(rowData.chequedate).toLocaleDateString('es-CL')}</div>},
+  {title:"Customer Name",field:"partyname"},
+  {title:"Customer Bank",field:"partybankname"},
+  {title:"Customer Branch",field:"partybranchname"},
   ]
  
 
@@ -147,7 +150,7 @@ const ViewChequeSlip = () => {
 
     setTimeout(()=>{
       setloading(false)
-    },2000)
+    },1000)
   }, []);
 
   return (
@@ -159,7 +162,7 @@ const ViewChequeSlip = () => {
        <SyncLoader
       color={color}
       loading={loading}
-      size={80}
+      size={40}
       aria-label="Loading Spinner"
       data-testid="loader"
     />

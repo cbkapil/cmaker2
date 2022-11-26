@@ -10,6 +10,8 @@ const partyDataSchema = new mongoose.Schema(
       type: String,
     
     },
+    bankname:{type:String},
+    branch:{type:String},
   
     address: {
       type: Schema.Types.Mixed,

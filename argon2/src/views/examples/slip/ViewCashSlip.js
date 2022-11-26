@@ -147,10 +147,7 @@ const ViewCashSlip = () => {
       field: "docdate",
       render: (rowData) => (
         <div>
-          {new Date(rowData.docdate)
-            .toISOString()
-            .split("T")[0]
-            .replace(/-/g, "/")}
+          {new Date(rowData.docdate).toLocaleDateString('es-CL')}
         </div>
       ),
     },
@@ -159,13 +156,13 @@ const ViewCashSlip = () => {
       field: "depositdate",
       render: (rowData) => (
         <div>
-          {new Date(rowData.docdate)
-            .toISOString()
-            .split("T")[0]
-            .replace(/-/g, "/")}
+          {new Date(rowData.depositdate).toLocaleDateString('es-CL')}
         </div>
       ),
     },
+
+    
+    
   
   ];
 
@@ -177,7 +174,7 @@ const ViewCashSlip = () => {
 
     setTimeout(() => {
       setloading(false);
-    }, 2000);
+    }, 1000);
   }, []);
 
   return (
@@ -189,7 +186,7 @@ const ViewCashSlip = () => {
         <SyncLoader
        color={color}
        loading={loading}
-       size={80}
+       size={40}
        aria-label="Loading Spinner"
        data-testid="loader"
      />
